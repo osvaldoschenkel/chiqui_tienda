@@ -1,0 +1,33 @@
+name: Laravel 12
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, pdo_sqlite, pdo_mysql
+          coverage: none
+          tools: composer:v2
+      - name: Dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Configuración
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - name: Verificar sintaxis
+        run: find app bootstrap config database routes tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Pruebas
+        run: php artisan test
+      - name: Compilar vistas
+        run: php artisan view:cache
