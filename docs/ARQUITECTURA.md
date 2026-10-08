@@ -9,6 +9,7 @@ Laravel 12, Blade, CSS y JavaScript propios. Base de datos relacional mediante E
 - `app/Models`: productos, contactos, operaciones, líneas y movimientos.
 - `app/Services/CommerceService.php`: transacciones, stock, cuentas e idempotencia.
 - `app/Services/Money.php`: conversión de importes decimales a centavos y formato.
+- `app/Services/DashboardStatistics.php`: filtros por calendario de Buenos Aires, agregados SQL y comparación de períodos.
 - `database/migrations`: estructura de tablas y claves foráneas.
 - `resources/views`: páginas renderizadas por Blade.
 - `public/css` y `public/js`: interfaz sin dependencias externas.
@@ -31,6 +32,15 @@ Cada venta o compra conserva una fotografía del nombre, SKU y precio/costo del 
 | purchases / purchase_items | Compras y detalle histórico |
 | ledger_entries | Cargos, cobros, pagos y reversiones |
 | stock_movements | Ingresos, egresos y ajustes de unidades |
+| store_settings | Identidad visual compartida por la instalación |
+
+## Dashboard e identidad
+
+`GET /` renderiza el dashboard con datos iniciales; `GET /dashboard/data` devuelve las mismas métricas en JSON para filtros y actualizaciones. Ambas rutas requieren sesión. El JSON se entrega con `Cache-Control: private, no-store`. El gráfico usa SVG y JavaScript locales y tiene una tabla alternativa; no requiere una biblioteca remota de gráficos.
+
+Los límites de cada día se calculan en Buenos Aires y se convierten a la zona configurada para almacenar fechas. Las consultas diarias usan un calendario SQL con intervalos, conservan días sin ventas y evitan depender de funciones de zona horaria específicas de una base. Los índices compuestos de estado y fecha acompañan las consultas de ventas y compras. Los saldos de cuentas corrientes siguen calculándose desde todos los asientos.
+
+La identidad se guarda en una única fila de `store_settings`. El guardado usa una transacción y reemplaza o elimina el logo después de confirmar los datos. Un compositor de vistas consulta la identidad cuando se renderizan las páginas, conservando valores predeterminados durante una instalación inicial. Los colores provienen de una paleta permitida y el logo se valida como imagen raster.
 
 ## Alcance
 

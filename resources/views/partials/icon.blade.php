@@ -1,6 +1,17 @@
 @php($icon = $name ?? 'grid')
 <svg class="icon {{ $class ?? '' }}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 @switch($icon)
+@case('brand')<path d="M6 9h12l2 12H4L6 9Z" fill="currentColor" stroke="none"/><path d="M8 9V6a4 4 0 0 1 8 0v3" stroke-width="2.7"/>@break
+@case('palette')<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.6-3.2 1.8 1.8 0 0 1 1.5-2.8H18a3 3 0 0 0 3-3 9 9 0 0 0-9-9Z"/><circle cx="7" cy="10" r=".8"/><circle cx="10" cy="6.5" r=".8"/><circle cx="15" cy="7" r=".8"/><circle cx="17.5" cy="11" r=".8"/>@break
+@case('settings')<path d="m9 3-1 3-3 1-2 5 2 5 3 1 1 3h6l1-3 3-1 2-5-2-5-3-1-1-3H9Z"/><circle cx="12" cy="12" r="3"/>@break
+@case('chevron')<path d="m8 10 4 4 4-4"/>@break
+@case('trend')<path d="m3 17 6-6 4 4 8-10M15 5h6v6"/>@break
+@case('trend-down')<path d="m3 7 6 6 4-4 8 10M15 19h6v-6"/>@break
+@case('refresh')<path d="M20 8a8 8 0 0 0-14-3L3 8m0-5v5h5M4 16a8 8 0 0 0 14 3l3-3m0 5v-5h-5"/>@break
+@case('calendar')<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h2M14 14h2M8 18h2"/>@break
+@case('receipt')<path d="m5 3 3 2 4-2 4 2 3-2v18l-3-2-4 2-4-2-3 2V3ZM9 9h6M9 13h6M9 17h3"/>@break
+@case('card')<rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 9h20M6 15h3"/>@break
+@case('cash')<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M5 9h.01M19 15h.01"/>@break
 @case('grid')<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>@break
 @case('bag')<path d="M5 8h14l2 13H3L5 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/>@break
 @case('box')<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="M3 8v9l9 5 9-5V8M12 13v9M7 5.7l9 5"/>@break

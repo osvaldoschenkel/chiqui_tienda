@@ -4,6 +4,10 @@ Aplicación de gestión de tienda en **Laravel 12**, con interfaz adaptable a ce
 
 Repositorio: [osvaldoschenkel/chiqui_tienda](https://github.com/osvaldoschenkel/chiqui_tienda).
 
+![Dashboard de Chiqui Tienda](docs/images/dashboard-desktop.png)
+
+Vista con datos de ejemplo. [Ver interfaz móvil](docs/images/dashboard-mobile.png) · [Personalizar la tienda](docs/images/store-settings.png).
+
 ## Incluye
 
 - Alta, consulta, modificación y eliminación de productos, clientes y proveedores.
@@ -12,7 +16,9 @@ Repositorio: [osvaldoschenkel/chiqui_tienda](https://github.com/osvaldoschenkel/
 - Ventas con carrito, comprobante interno e impresión.
 - Compras que reponen stock y registran deuda con el proveedor cuando corresponde.
 - Anulaciones con reversión de stock y cuenta corriente.
-- Dashboard, búsqueda, paginación, login y protección de formularios.
+- Dashboard dinámico con filtros de fecha, evolución de ventas, comparación con el período anterior, productos más vendidos y medios de pago.
+- Personalización de nombre, frase, logo y color desde «Mi tienda», aplicada a navegación, ingreso y comprobantes.
+- Búsqueda, paginación, login y protección de formularios.
 - Importes en centavos enteros y operaciones dentro de transacciones.
 - Suite de pruebas y flujo de GitHub Actions.
 
@@ -34,6 +40,7 @@ Crear un administrador mediante consola; la contraseña se pide oculta. No se pu
 - [Uso: stock, ventas, compras y cuentas corrientes](docs/USO.md)
 - [Arquitectura, datos y alcance](docs/ARQUITECTURA.md)
 - [Resultados y alcance de la validación](docs/VALIDACION.md)
+- [Dashboard y personalización visual](docs/DASHBOARD.md)
 
 ## Pruebas
 

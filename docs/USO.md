@@ -40,3 +40,9 @@ Los movimientos financieros quedan registrados y no tienen edición ni eliminaci
 ## Celular
 
 El panel adapta navegación, formularios, listados y caja a pantallas pequeñas. Los cambios se guardan en el servidor: requieren conexión. No incluye sincronización sin conexión ni aplicación nativa Android/iOS.
+
+## Dashboard y apariencia
+
+El dashboard permite consultar hoy, ayer, los últimos 7 o 30 días, el mes hasta hoy y un rango personalizado. Los gráficos y las métricas se actualizan al elegir un período. El botón de actualización consulta otra vez los registros y la actualización automática se puede desactivar. Las ventas y compras anuladas quedan fuera de las estadísticas; los saldos de cuentas y el stock reflejan el estado actual.
+
+Desde «Mi tienda» se pueden guardar el nombre, una frase, el color de la marca y un logo. Los cambios se aplican a las páginas, el ingreso y los comprobantes internos. El logo admite JPEG, PNG o WebP de hasta 2 MB. Consultá [Dashboard y personalización](DASHBOARD.md) para conocer las métricas y los criterios de comparación.
