@@ -1,0 +1,3 @@
+import {runtime} from '../../../lib/server';
+export const dynamic='force-dynamic';
+export async function GET(request:Request,context:{params:Promise<{id:string}>}){const {id}=await context.params;if(!/^[a-f0-9-]{36}$/.test(id))return new Response('Not found',{status:404});const bucket=runtime().BUCKET;if(!bucket)return new Response('Unavailable',{status:503});const object=await bucket.get('products/'+id);if(!object)return new Response('Not found',{status:404});const headers=new Headers({'X-Content-Type-Options':'nosniff','Cache-Control':'public,max-age=86400','Content-Disposition':'inline'});object.writeHttpMetadata(headers);headers.set('ETag',object.httpEtag);return new Response(object.body,{headers});}

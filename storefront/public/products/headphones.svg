@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none"><rect width="600" height="600" fill="white"/><g transform="translate(60 60) scale(3)">
+  <defs>
+    <linearGradient id="band" x1="40" y1="22" x2="125" y2="117" gradientUnits="userSpaceOnUse"><stop stop-color="#4B505A"/><stop offset=".38" stop-color="#232831"/><stop offset="1" stop-color="#0D1117"/></linearGradient>
+    <linearGradient id="cup" x1="33" y1="84" x2="66" y2="131" gradientUnits="userSpaceOnUse"><stop stop-color="#484E59"/><stop offset=".47" stop-color="#262C35"/><stop offset="1" stop-color="#111820"/></linearGradient>
+    <linearGradient id="right" x1="103" y1="80" x2="134" y2="131" gradientUnits="userSpaceOnUse"><stop stop-color="#3A414C"/><stop offset=".6" stop-color="#19212B"/><stop offset="1" stop-color="#0C1118"/></linearGradient>
+    <filter id="shadow" x="19" y="105" width="125" height="45" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <ellipse cx="82" cy="131" rx="48" ry="6" fill="#111827" opacity=".13" filter="url(#shadow)"/>
+  <path d="M35 90V69C35 42.49 55.15 24 80 24C104.85 24 125 42.49 125 69V90" stroke="url(#band)" stroke-width="15" stroke-linecap="round"/>
+  <path d="M39 73V67C39 45.35 56.54 29 80 29C103.46 29 121 45.35 121 67V73" stroke="#626974" stroke-width="2" opacity=".65" stroke-linecap="round"/>
+  <path d="M49 50C56.79 39.79 67.65 34 80 34C92.35 34 103.21 39.79 111 50" stroke="#090D13" stroke-width="7" stroke-linecap="round"/>
+  <rect x="29" y="70" width="11" height="32" rx="5" fill="#242B34"/>
+  <rect x="120" y="70" width="11" height="32" rx="5" fill="#1A212B"/>
+  <rect x="32" y="77" width="5" height="21" rx="2.5" fill="#7C8490"/>
+  <rect x="123" y="77" width="5" height="21" rx="2.5" fill="#596473"/>
+  <path d="M28 93C28 84.16 35.16 77 44 77H46C54.84 77 62 84.16 62 93V112C62 120.84 54.84 128 46 128H44C35.16 128 28 120.84 28 112V93Z" fill="url(#cup)"/>
+  <path d="M34 95C34 88.37 38.03 83 43 83C47.97 83 52 88.37 52 95V111C52 117.63 47.97 123 43 123C38.03 123 34 117.63 34 111V95Z" fill="#151B23" stroke="#4B525E" stroke-width="1.5"/>
+  <path d="M38 96C38 91.58 39.79 88 42 88C44.21 88 46 91.58 46 96V110C46 114.42 44.21 118 42 118C39.79 118 38 114.42 38 110V96Z" fill="#080D13"/>
+  <path d="M99 93C99 84.16 106.16 77 115 77H117C125.84 77 133 84.16 133 93V112C133 120.84 125.84 128 117 128H115C106.16 128 99 120.84 99 112V93Z" fill="url(#right)"/>
+  <path d="M109 86C112 83 118 82 122 85" stroke="#626C7A" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+  <rect x="105" y="86" width="16" height="34" rx="8" fill="#26303E" stroke="#414B59"/>
+  <path d="M113 95V111" stroke="#F4F7FC" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
+  <circle cx="129" cy="110" r="1.5" fill="#3483FA"/>
+</g></svg>
