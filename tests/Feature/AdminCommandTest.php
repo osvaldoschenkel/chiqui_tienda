@@ -21,6 +21,8 @@ class AdminCommandTest extends TestCase
         $user = User::sole();
         $this->assertSame('admin@chiqui.test', $user->email);
         $this->assertSame('Chiqui', $user->name);
+        $this->assertSame('admin', $user->role);
+        $this->assertTrue($user->isAdmin());
         $this->assertNotSame('UnaClaveMuySegura42', $user->password);
         $this->assertTrue(Hash::check('UnaClaveMuySegura42', $user->password));
     }

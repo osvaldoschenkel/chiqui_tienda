@@ -40,6 +40,12 @@ class AuthController extends Controller
         RateLimiter::clear($key);
         $request->session()->regenerate();
 
+        if (! $request->user()->isAdmin()) {
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('shop.index');
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

@@ -4,20 +4,19 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class CreateAdmin extends Command
+class CreateCustomer extends Command
 {
-    protected $signature = 'admin:create {email? : Correo del administrador} {--name= : Nombre}';
+    protected $signature = 'customer:create {email? : Correo del cliente} {--name= : Nombre}';
 
-    protected $description = 'Crea un usuario administrador con contraseña ingresada de forma oculta';
+    protected $description = 'Crea un usuario cliente con contraseña ingresada de forma oculta';
 
     public function handle(): int
     {
         $email = Str::lower(trim((string) ($this->argument('email') ?: $this->ask('Correo electrónico'))));
-        $name = $this->option('name') ?: $this->ask('Nombre', 'Administrador');
+        $name = $this->option('name') ?: $this->ask('Nombre', 'Cliente');
         $password = $this->secret('Contraseña (mínimo 12 caracteres)');
         $confirmation = $this->secret('Repetir contraseña');
         $validator = Validator::make([
@@ -28,16 +27,20 @@ class CreateAdmin extends Command
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:12|confirmed',
         ]);
+
         if ($validator->fails()) {
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return self::FAILURE;
         }
-        $user = new User(['email' => $email, 'name' => $name, 'password' => Hash::make($password)]);
-        $user->role = 'admin';
+
+        $user = new User(['email' => $email, 'name' => $name, 'password' => $password]);
+        $user->role = 'customer';
         $user->save();
-        $this->info('Administrador creado. Ya podés ingresar a la tienda.');
+        $this->info('Cliente creado. Ya podés ingresar a la tienda.');
+
         return self::SUCCESS;
     }
 }

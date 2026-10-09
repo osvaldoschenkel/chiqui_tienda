@@ -30,7 +30,7 @@
         <div class="workspace-pill"><span class="status-dot"></span><span>Tu espacio de trabajo</span>@include('partials.icon', ['name' => 'chevron'])</div>
         <div class="nav-label">PRINCIPAL</div>
         <nav class="main-nav">
-            @php($links = [['dashboard', 'grid', 'Dashboard', 'dashboard'], ['sales.index', 'bag', 'Ventas', 'sales.*'], ['products.index', 'box', 'Productos', 'products.*'], ['customers.index', 'users', 'Clientes', 'customers.*'], ['purchases.index', 'cart', 'Compras', 'purchases.*'], ['suppliers.index', 'truck', 'Proveedores', 'suppliers.*'], ['accounts.index', 'wallet', 'Cuentas corrientes', 'accounts.*']])
+            @php($links = [['dashboard', 'grid', 'Dashboard', 'dashboard'], ['shop.admin.orders.index', 'cart', 'Pedidos de clientes', 'shop.admin.orders.*'], ['sales.index', 'bag', 'Ventas', 'sales.*'], ['products.index', 'box', 'Productos', 'products.*'], ['customers.index', 'users', 'Clientes', 'customers.*'], ['purchases.index', 'cart', 'Compras', 'purchases.*'], ['suppliers.index', 'truck', 'Proveedores', 'suppliers.*'], ['accounts.index', 'wallet', 'Cuentas corrientes', 'accounts.*']])
             @foreach($links as [$route, $icon, $label, $pattern])
                 <a class="nav-item {{ request()->routeIs($pattern) ? 'active' : '' }}" href="{{ route($route) }}" @if(request()->routeIs($pattern)) aria-current="page" @endif>@include('partials.icon', ['name' => $icon])<span>{{ $label }}</span>@if(request()->routeIs($pattern))<span class="nav-active-dot"></span>@endif</a>
             @endforeach

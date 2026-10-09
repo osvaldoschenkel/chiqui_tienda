@@ -9,6 +9,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StoreSettingController;
 use App\Http\Controllers\SupplierController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -18,7 +19,16 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
-    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::get('/', function (Request $request) {
+        if (! $request->user()->isAdmin()) {
+            return redirect()->route('shop.index');
+        }
+
+        return app(DashboardController::class)($request);
+    })->name('dashboard');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/mi-tienda', [StoreSettingController::class, 'edit'])->name('settings.edit');
     Route::put('/mi-tienda', [StoreSettingController::class, 'update'])->name('settings.update');
@@ -35,3 +45,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/purchases/{purchase}/cancel', [PurchaseController::class, 'cancel'])->name('purchases.cancel');
     Route::get('/cuentas', AccountController::class)->name('accounts.index');
 });
+
+require __DIR__.'/shop.php';
