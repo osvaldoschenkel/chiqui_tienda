@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: ['commerce/mercadopago/webhook']);
         $middleware->alias(['admin' => EnsureUserIsAdmin::class]);
         $middleware->prependToPriorityList(SubstituteBindings::class, EnsureUserIsAdmin::class);
         $middleware->redirectUsersTo(fn (Request $request) => route($request->user()->isAdmin() ? 'dashboard' : 'shop.index'));

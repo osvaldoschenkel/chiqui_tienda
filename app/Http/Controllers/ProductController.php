@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\PurchaseItem;
 use App\Models\SaleItem;
@@ -177,6 +178,7 @@ class ProductController extends Controller
     {
         return view('products.form', [
             'product' => $product,
+            'brands' => Brand::where('active', true)->orWhere('id', $product->brand_id)->orderBy('name')->get(),
             'suppliers' => Supplier::where('active', true)->when($product->supplier_id, function ($query) use ($product) {
                 $query->orWhere('id', $product->supplier_id);
             })->orderBy('name')->get(),
@@ -193,6 +195,12 @@ class ProductController extends Controller
             'name' => ['required', 'string', 'max:200'],
             'sku' => ['required', 'string', 'max:80', Rule::unique('products', 'sku')->ignore($product?->id)],
             'barcode' => ['nullable', 'string', 'max:80', Rule::unique('products', 'barcode')->ignore($product?->id)],
+            'brand_id' => ['nullable', 'integer', Rule::exists('brands', 'id')],
+            'weight_grams' => ['sometimes', 'required', 'integer', 'min:0', 'max:10000000'],
+            'height_cm' => ['sometimes', 'required', 'numeric', 'min:0', 'max:5000'],
+            'width_cm' => ['sometimes', 'required', 'numeric', 'min:0', 'max:5000'],
+            'length_cm' => ['sometimes', 'required', 'numeric', 'min:0', 'max:5000'],
+            'vat_rate' => ['sometimes', 'required', Rule::in([0, 10.5, 21, 27])],
             'category' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:5000'],
             'supplier_id' => ['nullable', 'integer', Rule::exists('suppliers', 'id')],

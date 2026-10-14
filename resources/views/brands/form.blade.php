@@ -1,0 +1,3 @@
+@extends('layouts.app')
+@section('title',$brand->exists?'Editar marca':'Nueva marca')
+@section('content')<h1>@yield('title')</h1><section class="card"><div class="card-body"><form method="POST" action="{{ $brand->exists?route('brands.update',$brand):route('brands.store') }}">@csrf @if($brand->exists)@method('PUT')@endif<label class="field">Nombre<input class="input" name="name" required maxlength="100" value="{{ old('name',$brand->name) }}"></label><input type="hidden" name="active" value="0"><label><input type="checkbox" name="active" value="1" @checked(old('active',$brand->active))> Activa</label><button class="button button-primary">Guardar</button><a href="{{ route('brands.index') }}">Volver</a></form></div></section>@endsection

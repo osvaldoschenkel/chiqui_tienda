@@ -16,7 +16,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, dom, fileinfo, pdo_sqlite, pdo_mysql
+          extensions: mbstring, dom, fileinfo, pdo_sqlite, pdo_mysql, soap, gd
           coverage: none
           tools: composer:v2
       - name: Dependencias
@@ -31,3 +31,20 @@ jobs:
         run: php artisan test
       - name: Compilar vistas
         run: php artisan view:cache
+
+  storefront:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: storefront
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: storefront/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: node --test tests/integrations.test.mjs
+      - run: npm run build

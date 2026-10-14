@@ -14,8 +14,16 @@ class ShopFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function customer(): User { return User::factory()->create(['role' => 'customer']); }
-    private function admin(): User { return User::factory()->create(['role' => 'admin']); }
+    private function customer(): User
+    {
+        return User::factory()->create(['role' => 'customer']);
+    }
+
+    private function admin(): User
+    {
+        return User::factory()->create(['role' => 'admin']);
+    }
+
     private function product(array $attributes = []): Product
     {
         return Product::create(array_replace([
@@ -23,10 +31,12 @@ class ShopFlowTest extends TestCase
             'price_cents' => 125050, 'cost_cents' => 70000, 'stock' => 10, 'min_stock' => 2, 'active' => true,
         ], $attributes));
     }
+
     private function payload(array $attributes = []): array
     {
         return array_replace(['request_id' => (string) Str::uuid(), 'delivery_method' => 'pickup', 'notes' => 'Coordinar retiro por la tarde.'], $attributes);
     }
+
     private function createOrder(User $user, Product $product, int $quantity = 2): CustomerOrder
     {
         $this->actingAs($user)->withSession(['shop.cart' => [$product->id => $quantity]])
@@ -66,7 +76,8 @@ class ShopFlowTest extends TestCase
 
     public function test_checkout_uses_locked_server_prices_preserves_snapshots_and_never_creates_a_pos_sale(): void
     {
-        $user = $this->customer(); $product = $this->product(['image_path' => 'products/example.png']);
+        $user = $this->customer();
+        $product = $this->product(['image_path' => 'products/example.png']);
         $this->actingAs($user)->post(route('shop.cart.add', $product), ['quantity' => 2]);
         $product->update(['price_cents' => 99001]);
         $data = $this->payload([
@@ -96,7 +107,10 @@ class ShopFlowTest extends TestCase
 
     public function test_checkout_retry_is_idempotent_after_cart_clear_and_keys_are_scoped_to_the_user(): void
     {
-        $user = $this->customer(); $other = $this->customer(); $product = $this->product(); $data = $this->payload();
+        $user = $this->customer();
+        $other = $this->customer();
+        $product = $this->product();
+        $data = $this->payload();
         $this->actingAs($user)->withSession(['shop.cart' => [$product->id => 2]])->post(route('shop.orders.store'), $data)->assertRedirect();
         $first = CustomerOrder::sole();
         $this->post(route('shop.orders.store'), $data)->assertRedirect(route('shop.orders.show', $first));
@@ -114,7 +128,8 @@ class ShopFlowTest extends TestCase
 
     public function test_insufficient_stock_rolls_back_the_whole_order_and_every_reservation(): void
     {
-        $first = $this->product(['stock' => 8]); $second = $this->product(['stock' => 1]);
+        $first = $this->product(['stock' => 8]);
+        $second = $this->product(['stock' => 1]);
         $this->actingAs($this->customer())->withSession(['shop.cart' => [$first->id => 3, $second->id => 2]])
             ->post(route('shop.orders.store'), $this->payload())->assertSessionHasErrors('cart');
         $this->assertSame(8, $first->fresh()->stock);
@@ -140,7 +155,8 @@ class ShopFlowTest extends TestCase
 
     public function test_cart_can_remove_a_product_deleted_before_checkout(): void
     {
-        $product = $this->product(); $id = $product->id;
+        $product = $this->product();
+        $id = $product->id;
         $this->actingAs($this->customer())->withSession(['shop.cart' => [$id => 1]]);
         $product->delete();
         $this->delete(route('shop.cart.remove', $id))->assertRedirect(route('shop.cart.index'))->assertSessionHas('shop.cart', []);
@@ -148,8 +164,11 @@ class ShopFlowTest extends TestCase
 
     public function test_purchase_history_is_scoped_and_other_customers_orders_return_404(): void
     {
-        $first = $this->customer(); $second = $this->customer(); $product = $this->product();
-        $own = $this->createOrder($first, $product, 1); $other = $this->createOrder($second, $product, 1);
+        $first = $this->customer();
+        $second = $this->customer();
+        $product = $this->product();
+        $own = $this->createOrder($first, $product, 1);
+        $other = $this->createOrder($second, $product, 1);
         $this->actingAs($first)->get(route('shop.orders.index'))->assertOk()->assertViewHas('orders', fn ($orders) => $orders->count() === 1 && $orders->first()->id === $own->id);
         $this->get(route('shop.orders.show', $own))->assertOk()->assertViewHas('order', fn ($order) => $order->id === $own->id);
         $this->get(route('shop.orders.show', $other))->assertNotFound();
@@ -157,8 +176,10 @@ class ShopFlowTest extends TestCase
 
     public function test_admin_cancels_unpaid_order_and_restores_archived_product_stock_exactly_once(): void
     {
-        $product = $this->product(); $order = $this->createOrder($this->customer(), $product);
-        $product->update(['active' => false]); $admin = $this->admin();
+        $product = $this->product();
+        $order = $this->createOrder($this->customer(), $product);
+        $product->update(['active' => false]);
+        $admin = $this->admin();
         $this->actingAs($admin)->patch(route('shop.admin.orders.update', $order), ['status' => 'cancelled', 'payment_status' => 'pending'])->assertRedirect(route('shop.admin.orders.index'));
         $this->assertSame(10, $product->fresh()->stock);
         $this->assertSame('cancelled', $order->fresh()->status);
@@ -174,7 +195,8 @@ class ShopFlowTest extends TestCase
 
     public function test_fulfilment_requires_explicit_manual_payment_and_advances_in_order(): void
     {
-        $order = $this->createOrder($this->customer(), $this->product()); $admin = $this->admin();
+        $order = $this->createOrder($this->customer(), $this->product());
+        $admin = $this->admin();
         $this->actingAs($admin)->patchJson(route('shop.admin.orders.update', $order), ['status' => 'preparing', 'payment_status' => 'pending'])->assertUnprocessable()->assertJsonValidationErrors('payment_status');
         $this->patchJson(route('shop.admin.orders.update', $order), ['status' => 'shipped', 'payment_status' => 'confirmed'])->assertUnprocessable()->assertJsonValidationErrors('status');
         $this->assertSame('pending', $order->fresh()->payment_status);
@@ -188,13 +210,16 @@ class ShopFlowTest extends TestCase
         $this->assertSame('delivered', $order->fresh()->status);
         $this->patchJson(route('shop.admin.orders.update', $order), ['status' => 'delivered', 'payment_status' => 'pending'])->assertUnprocessable()->assertJsonValidationErrors('payment_status');
         $this->patchJson(route('shop.admin.orders.update', $order), ['status' => 'preparing', 'payment_status' => 'confirmed'])->assertUnprocessable()->assertJsonValidationErrors('status');
-        $this->assertDatabaseCount('sales', 0);
+        $this->assertDatabaseCount('sales', 1);
+        $this->assertNotNull($order->fresh()->sale_id);
         $this->assertDatabaseCount('ledger_entries', 0);
     }
 
     public function test_confirmed_payment_cannot_be_cancelled_or_reverted_and_clients_cannot_confirm_it(): void
     {
-        $customer = $this->customer(); $product = $this->product(); $order = $this->createOrder($customer, $product);
+        $customer = $this->customer();
+        $product = $this->product();
+        $order = $this->createOrder($customer, $product);
         $this->patchJson(route('shop.admin.orders.update', $order), ['status' => 'pending', 'payment_status' => 'confirmed'])->assertForbidden();
         $this->actingAs($this->admin())->patch(route('shop.admin.orders.update', $order), ['status' => 'pending', 'payment_status' => 'confirmed'])->assertRedirect();
         $this->patchJson(route('shop.admin.orders.update', $order), ['status' => 'cancelled', 'payment_status' => 'confirmed'])->assertUnprocessable()->assertJsonValidationErrors('payment_status');

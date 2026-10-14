@@ -1,3 +1,11 @@
+# Portal anterior / transición a Laravel
+
+La aplicación operativa es ahora el Laravel de la raíz. Configurar `LARAVEL_STORE_URL` (HTTPS) redirige las páginas al catálogo `/tienda`, la cuenta `/mis-compras` y la administración nativa. No se crean nuevas compras reales en D1; se conservan demos y conciliación de pedidos históricos. Los webhooks previos no se redirigen para evitar perder pagos de pedidos de esta base.
+
+No se trasladan datos D1/R2 automáticamente. Conservarlos y exportarlos antes de retirar el hosting. Consultar [COMERCIO_ONLINE](../docs/COMERCIO_ONLINE.md).
+
+El README histórico siguiente describe la implementación anterior y sus variables para atender pedidos existentes.
+
 # Chiqui tienda · Storefront
 
 Tienda de tecnología inspirada en la estructura visual de [Teracomp](https://www.teracomp.com.ar/). Esta carpeta es una aplicación independiente; el proyecto Laravel existente en la raíz del repositorio se mantiene separado.

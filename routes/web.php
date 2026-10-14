@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
@@ -33,6 +35,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/mi-tienda', [StoreSettingController::class, 'edit'])->name('settings.edit');
     Route::put('/mi-tienda', [StoreSettingController::class, 'update'])->name('settings.update');
 
+    Route::resource('brands', BrandController::class)->except('show');
+    Route::get('/integraciones', [IntegrationController::class, 'edit'])->name('integrations.edit');
+    Route::put('/integraciones', [IntegrationController::class, 'update'])->name('integrations.update');
     Route::resource('products', ProductController::class)->except('show');
     Route::resource('customers', CustomerController::class);
     Route::resource('suppliers', SupplierController::class);

@@ -78,6 +78,7 @@ export default function AdminPanel() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [orderDrafts, setOrderDrafts] = useState<Record<string, OrderDraft>>({});
   const [savingOrder, setSavingOrder] = useState<string | null>(null);
+  const expectedStock = useRef<number>(0);
   const productDialog = useRef<HTMLDialogElement>(null);
   const categoryDialog = useRef<HTMLDialogElement>(null);
   const hasProduct = product !== null;
@@ -108,14 +109,14 @@ export default function AdminPanel() {
     if (destination < 0) return;
     event.preventDefault(); changeTab(ids[destination]); document.getElementById(`ad-tab-${ids[destination]}`)?.focus();
   }
-  function editProduct(next: Product | null) { setError(''); setNotice(''); setProduct(next ? { ...next, media: next.media.map(item => ({ ...item })) } : { ...blankProduct(), categoryId: store?.categories[0]?.id || '' }); }
+  function editProduct(next: Product | null) { expectedStock.current=next?.stock||0; setError(''); setNotice(''); setProduct(next ? { ...next, media: next.media.map(item => ({ ...item })) } : { ...blankProduct(), categoryId: store?.categories[0]?.id || '' }); }
   function updateProduct<K extends keyof Product>(key: K, value: Product[K]) { setProduct(current => current ? { ...current, [key]: value } : null); }
 
   async function saveProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); if (!product || saving || uploading) return;
     setSaving(true); setError('');
     try {
-      await api('/api/admin/products', { method: product.id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, id: product.id || undefined, name: product.name.trim(), sku: product.sku.trim(), brand: product.brand.trim() }) });
+      await api('/api/admin/products', { method: product.id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, expectedStock:expectedStock.current, id: product.id || undefined, name: product.name.trim(), sku: product.sku.trim(), brand: product.brand.trim() }) });
       setProduct(null); setNotice('Producto guardado.');
       try { await loadStore(); } catch { setError('El producto se guardó, pero no pudimos actualizar el listado. Recargá para ver los cambios.'); }
     } catch (failure) { setError(errorMessage(failure)); }

@@ -59,3 +59,7 @@ php artisan view:cache
 Los comprobantes son internos. Tarjetas y transferencias registran un pago realizado por fuera del sistema; no incluyen pasarela de cobro. Para emitir comprobantes fiscales se necesita integrar ARCA.
 
 Base inicial: esqueleto oficial `laravel/laravel`, rama `12.x`, bajo licencia MIT. Ver [LICENSE](LICENSE).
+
+## Comercio online integrado
+
+Productos, proveedores y marcas comparten stock y administración con la tienda Laravel. Incluye Mercado Pago, contrarreembolso, Zipnova/Zippin y facturación ARCA con PDF para el comprador. Ver [configuración, actualización y validación](docs/COMERCIO_ONLINE.md).

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\CustomerOrder;
 use App\Models\LedgerEntry;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -35,6 +36,7 @@ final class CommerceService
             return DB::transaction(function () use ($data, $items, $customerId, $hash, $userId) {
                 if ($existing = Sale::where('request_id', $data['request_id'])->first()) {
                     $this->assertRequest($existing->request_hash, $hash);
+
                     return $existing->load('items', 'customer');
                 }
                 $customer = $customerId ? Customer::whereKey($customerId)->lockForUpdate()->first() : null;
@@ -92,8 +94,11 @@ final class CommerceService
         } catch (QueryException $exception) {
             // A concurrent identical request may win the unique request_id race. Its transaction is complete.
             $existing = Sale::where('request_id', $data['request_id'])->first();
-            if (! $existing) { throw $exception; }
+            if (! $existing) {
+                throw $exception;
+            }
             $this->assertRequest($existing->request_hash, $hash);
+
             return $existing->load('items', 'customer');
         }
     }
@@ -117,6 +122,7 @@ final class CommerceService
             return DB::transaction(function () use ($data, $items, $supplierId, $hash, $userId) {
                 if ($existing = Purchase::where('request_id', $data['request_id'])->first()) {
                     $this->assertRequest($existing->request_hash, $hash);
+
                     return $existing->load('items', 'supplier');
                 }
                 $supplier = Supplier::whereKey($supplierId)->lockForUpdate()->first();
@@ -127,11 +133,17 @@ final class CommerceService
                 $total = 0;
                 foreach ($items as $item) {
                     $product = $products->get($item['product_id']);
-                    if (! $product->active) { $this->fail('items', "El producto {$product->name} está inactivo."); }
-                    if ($product->stock + $item['quantity'] > 2_000_000_000) { $this->fail('items', 'El stock supera el máximo permitido.'); }
+                    if (! $product->active) {
+                        $this->fail('items', "El producto {$product->name} está inactivo.");
+                    }
+                    if ($product->stock + $item['quantity'] > 2_000_000_000) {
+                        $this->fail('items', 'El stock supera el máximo permitido.');
+                    }
                     $total = $this->addSubtotal($total, $item['unit_cost_cents'], $item['quantity']);
                 }
-                if ($total <= 0) { $this->fail('items', 'La compra debe tener un total mayor a cero.'); }
+                if ($total <= 0) {
+                    $this->fail('items', 'La compra debe tener un total mayor a cero.');
+                }
                 $purchase = Purchase::create([
                     'number' => 'pending-'.$data['request_id'], 'request_id' => $data['request_id'], 'request_hash' => $hash,
                     'supplier_id' => $supplierId, 'payment_method' => $data['payment_method'],
@@ -156,23 +168,36 @@ final class CommerceService
             }, 3);
         } catch (QueryException $exception) {
             $existing = Purchase::where('request_id', $data['request_id'])->first();
-            if (! $existing) { throw $exception; }
+            if (! $existing) {
+                throw $exception;
+            }
             $this->assertRequest($existing->request_hash, $hash);
+
             return $existing->load('items', 'supplier');
         }
     }
 
     public function cancelSale(Sale $sale, int $userId): Sale
     {
+        if (CustomerOrder::where('sale_id', $sale->id)->exists()) {
+            throw ValidationException::withMessages(['sale' => 'Esta venta pertenece a un pedido web. Gestioná la devolución desde el pedido para conservar stock y comprobantes.']);
+        }
+
         return DB::transaction(function () use ($sale, $userId) {
             $sale = Sale::whereKey($sale->id)->lockForUpdate()->firstOrFail();
-            if ($sale->status === 'cancelled') { return $sale->load('items', 'customer'); }
-            if ($sale->customer_id) { Customer::whereKey($sale->customer_id)->lockForUpdate()->firstOrFail(); }
+            if ($sale->status === 'cancelled') {
+                return $sale->load('items', 'customer');
+            }
+            if ($sale->customer_id) {
+                Customer::whereKey($sale->customer_id)->lockForUpdate()->firstOrFail();
+            }
             $sale->load('items');
             $products = Product::whereIn('id', $sale->items->pluck('product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             foreach ($sale->items as $item) {
                 $product = $products->get($item->product_id);
-                if ($product->stock + $item->quantity > 2_000_000_000) { $this->fail('sale', 'La devolución excede el máximo de stock permitido.'); }
+                if ($product->stock + $item->quantity > 2_000_000_000) {
+                    $this->fail('sale', 'La devolución excede el máximo de stock permitido.');
+                }
                 $product->increment('stock', $item->quantity);
                 $this->recordStock($product->id, $item->quantity, 'sale_cancel', $sale->id, "Anulación {$sale->number}", $userId);
             }
@@ -180,6 +205,7 @@ final class CommerceService
                 $this->recordLedger($sale->customer_id, null, 'credit', $sale->total_cents, 'sale_cancel', $sale->id, "Anulación {$sale->number}", 'account', $userId);
             }
             $sale->update(['status' => 'cancelled', 'cancelled_at' => now(), 'cancelled_by' => $userId]);
+
             return $sale->load('items', 'customer');
         }, 3);
     }
@@ -188,7 +214,9 @@ final class CommerceService
     {
         return DB::transaction(function () use ($purchase, $userId) {
             $purchase = Purchase::whereKey($purchase->id)->lockForUpdate()->firstOrFail();
-            if ($purchase->status === 'cancelled') { return $purchase->load('items', 'supplier'); }
+            if ($purchase->status === 'cancelled') {
+                return $purchase->load('items', 'supplier');
+            }
             Supplier::whereKey($purchase->supplier_id)->lockForUpdate()->firstOrFail();
             $purchase->load('items');
             $products = Product::whereIn('id', $purchase->items->pluck('product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
@@ -209,6 +237,7 @@ final class CommerceService
                 $this->recordLedger(null, $purchase->supplier_id, 'credit', $purchase->total_cents, 'purchase_cancel', $purchase->id, "Anulación {$purchase->number}", 'account', $userId);
             }
             $purchase->update(['status' => 'cancelled', 'cancelled_at' => now(), 'cancelled_by' => $userId]);
+
             // Current cost is retained: older purchases may have been followed by newer cost updates.
             return $purchase->load('items', 'supplier');
         }, 3);
@@ -231,7 +260,9 @@ final class CommerceService
             $this->fail('customer_id', 'Seleccioná exactamente un cliente o un proveedor.');
         }
         $amount = Money::cents($data['amount']);
-        if ($amount <= 0) { $this->fail('amount', 'El importe debe ser mayor a cero.'); }
+        if ($amount <= 0) {
+            $this->fail('amount', 'El importe debe ser mayor a cero.');
+        }
 
         $requestId = ! empty($data['request_id']) ? $data['request_id'] : null;
         $hash = $requestId ? hash('sha256', json_encode([
@@ -249,6 +280,7 @@ final class CommerceService
                 // Read after the owner lock so two identical account forms see the committed winner.
                 if ($requestId && ($existing = LedgerEntry::where('request_id', $requestId)->lockForUpdate()->first())) {
                     $this->assertRequest((string) $existing->request_hash, $hash);
+
                     return $existing;
                 }
                 // Inactive contacts can still settle their existing account; only new debits are blocked.
@@ -258,12 +290,16 @@ final class CommerceService
                 if ($contact instanceof Customer && $data['direction'] === 'debit') {
                     $this->checkCreditLimit($contact, $amount);
                 }
+
                 return $this->recordLedger($customerId, $supplierId, $data['direction'], $amount, null, null, $data['description'], $data['payment_method'] ?? null, $userId, $data['date'] ?? null, $requestId, $hash);
             }, 3);
         } catch (QueryException $exception) {
             $existing = $requestId ? LedgerEntry::where('request_id', $requestId)->first() : null;
-            if (! $existing) { throw $exception; }
+            if (! $existing) {
+                throw $exception;
+            }
             $this->assertRequest((string) $existing->request_hash, $hash);
+
             return $existing;
         }
     }
@@ -273,11 +309,16 @@ final class CommerceService
         $normalised = [];
         foreach ($items as $item) {
             $id = (int) $item['product_id'];
-            if (isset($normalised[$id])) { $this->fail('items', 'Un producto no puede estar repetido. Sumá las cantidades en una sola línea.'); }
+            if (isset($normalised[$id])) {
+                $this->fail('items', 'Un producto no puede estar repetido. Sumá las cantidades en una sola línea.');
+            }
             $normalised[$id] = ['product_id' => $id, 'quantity' => (int) $item['quantity']];
-            if ($purchase) { $normalised[$id]['unit_cost_cents'] = Money::cents($item['unit_cost']); }
+            if ($purchase) {
+                $normalised[$id]['unit_cost_cents'] = Money::cents($item['unit_cost']);
+            }
         }
         ksort($normalised, SORT_NUMERIC);
+
         return array_values($normalised);
     }
 
@@ -285,7 +326,10 @@ final class CommerceService
     {
         $ids = array_column($items, 'product_id');
         $products = Product::whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
-        if ($products->count() !== count($ids)) { $this->fail('items', 'Uno de los productos ya no existe. Actualizá la lista.'); }
+        if ($products->count() !== count($ids)) {
+            $this->fail('items', 'Uno de los productos ya no existe. Actualizá la lista.');
+        }
+
         return $products;
     }
 
@@ -294,6 +338,7 @@ final class CommerceService
         if ($price < 0 || $price > intdiv(Money::MAX_CENTS - $total, $quantity)) {
             $this->fail('items', 'El total supera el máximo permitido.');
         }
+
         return $total + $price * $quantity;
     }
 
@@ -315,7 +360,9 @@ final class CommerceService
 
     private function assertRequest(string $stored, string $incoming): void
     {
-        if (! hash_equals($stored, $incoming)) { $this->fail('request_id', 'Este identificador ya fue usado con otra operación. Abrí una nueva operación.'); }
+        if (! hash_equals($stored, $incoming)) {
+            $this->fail('request_id', 'Este identificador ya fue usado con otra operación. Abrí una nueva operación.');
+        }
     }
 
     private function recordStock(int $productId, int $delta, string $referenceType, int $referenceId, string $note, int $userId): StockMovement
