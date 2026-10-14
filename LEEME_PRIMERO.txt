@@ -1,0 +1,13 @@
+CHIQUI TIENDA - PAQUETE PARA HOSTING
+
+1. Leer docs/CARGAR_AL_HOSTING.md.
+2. Subir y extraer la aplicación en una carpeta privada.
+3. Apuntar el dominio a la carpeta public/ de la aplicación.
+4. Copiar deploy/env.production.example a .env y completar dominio y base MySQL.
+5. Por terminal: php scripts/requirements.php && bash scripts/install.sh
+6. Crear administrador: php artisan admin:create tu-email --name="Administrador"
+7. Configurar HTTPS, cron e integraciones desde /integraciones.
+
+Incluye vendor/ de producción. No contiene claves, usuarios ni datos reales.
+Para actualizaciones, respaldar y conservar .env, APP_KEY y storage/app.
+Si no hay consola PHP/SSH, pedir al hosting que ejecute los comandos de la guía.

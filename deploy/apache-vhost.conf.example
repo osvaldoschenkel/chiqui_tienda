@@ -1,0 +1,13 @@
+# Template: HTTPS/certificate should be managed by the hosting panel.
+<VirtualHost *:80>
+    ServerName tu-dominio.com
+    DocumentRoot /var/www/chiqui_tienda/public
+    <Directory /var/www/chiqui_tienda/public>
+        AllowOverride All
+        Options -Indexes +FollowSymLinks
+        Require all granted
+    </Directory>
+    ErrorLog ${APACHE_LOG_DIR}/chiqui-error.log
+    CustomLog ${APACHE_LOG_DIR}/chiqui-access.log combined
+</VirtualHost>
+# Enable mod_rewrite and a PHP 8.3 handler. Redirect HTTP to HTTPS in the panel.

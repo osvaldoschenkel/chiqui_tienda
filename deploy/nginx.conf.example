@@ -1,0 +1,25 @@
+# Template: replace domain, path, certificate paths and PHP socket before use.
+server {
+    listen 80;
+    server_name tu-dominio.com;
+    return 301 https://$host$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name tu-dominio.com;
+    ssl_certificate /etc/letsencrypt/live/tu-dominio.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tu-dominio.com/privkey.pem;
+    root /var/www/chiqui_tienda/public;
+    index index.php;
+    charset utf-8;
+    client_max_body_size 8m;
+    add_header X-Content-Type-Options nosniff;
+    location / { try_files $uri $uri/ /index.php?$query_string; }
+    location = /index.php {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+    location ~ \.php$ { return 404; }
+    location ~ /\.(?!well-known).* { deny all; }
+}

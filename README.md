@@ -63,3 +63,7 @@ Base inicial: esqueleto oficial `laravel/laravel`, rama `12.x`, bajo licencia MI
 ## Comercio online integrado
 
 Productos, proveedores y marcas comparten stock y administración con la tienda Laravel. Incluye Mercado Pago, contrarreembolso, Zipnova/Zippin y facturación ARCA con PDF para el comprador. Ver [configuración, actualización y validación](docs/COMERCIO_ONLINE.md).
+
+## Cargar al hosting
+
+Empezar por [LEEME_PRIMERO](LEEME_PRIMERO.txt) y seguir [CARGAR_AL_HOSTING](docs/CARGAR_AL_HOSTING.md). Hay scripts para instalar, actualizar y comprobar requisitos, una plantilla de entorno de producción y ejemplos Apache/Nginx. Para generar el ZIP con vendor de producción: `python3 scripts/build-hosting-package.py --output /ruta/fuera-del-repo/chiqui_tienda_hosting.zip`. Requiere Git, Python 3 y Composer 2 en la máquina que arma el paquete; no en el hosting.

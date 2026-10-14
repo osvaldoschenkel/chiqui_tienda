@@ -27,6 +27,12 @@ jobs:
           php artisan key:generate
       - name: Verificar sintaxis
         run: find app bootstrap config database routes tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Verificar scripts de carga
+        run: |
+          php -l scripts/requirements.php
+          php -l scripts/key-init.php
+          bash -n scripts/install.sh scripts/update.sh
+          python3 scripts/build-hosting-package.py --help
       - name: Pruebas
         run: php artisan test
       - name: Compilar vistas

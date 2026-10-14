@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- PHP 8.2 o superior con BCMath, Ctype, cURL, DOM, Fileinfo, Mbstring, OpenSSL, PDO, Tokenizer y XML. Activar `pdo_mysql` para MySQL o `pdo_sqlite` para SQLite.
+- PHP 8.3 o superior (versión probada) con Ctype, cURL, DOM, Fileinfo, GD, Mbstring, OpenSSL, PDO, SOAP, Tokenizer, SimpleXML y XML. Instalar también el ejecutable OpenSSL. Activar `pdo_mysql` para MySQL o `pdo_sqlite` para SQLite.
 - Composer 2.
 - MySQL 8/MariaDB compatible con Laravel, o SQLite para pruebas locales.
 - Apache o Nginx para producción; Laragon funciona para desarrollo en Windows.
@@ -90,3 +90,7 @@ php artisan view:cache
 ```
 
 GitHub Actions ejecuta la suite en PHP 8.3 al hacer push o abrir un pull request. Para verificar concurrencia en producción se recomienda MySQL; SQLite no tiene el mismo mecanismo de bloqueo por fila.
+
+## Carga al hosting
+
+La guía completa, incluida la carga por ZIP y configuración del dominio, está en [CARGAR_AL_HOSTING.md](CARGAR_AL_HOSTING.md). Los scripts de instalación conservan APP_KEY y no cargan datos de ejemplo.
